@@ -1,0 +1,110 @@
+version: '3.5'
+services:
+  # #######################################
+  # primary namenode (namenode1)
+  # secondary namenode (namenode2)
+  #
+  namenode1:
+    build: .
+    hostname: namenode1
+    domainname: cluster.local
+    container_name: namenode1
+    networks:
+      hadoop:
+        ipv4_address: 10.5.0.11
+    environment:
+      ZOOKEEPER_ID: 1
+    volumes:
+      - "./srv-namenode.cfg:/etc/supervisord.d/services.cfg:ro"
+      - "./init.d:/etc/hadoop/init.d:ro"
+      - "./etc:/etc/hadoop/conf:ro"
+      - "./environment.env:/etc/environment:ro"
+      - "./workspace/scripts:/workspace/scripts:ro"
+      - "./workspace/tmp:/workspace/tmp:rw"
+      - "namenode1:/storage"
+
+  namenode2:
+    build: .
+    hostname: namenode2
+    domainname: cluster.local
+    container_name: namenode2
+    networks:
+      hadoop:
+        ipv4_address: 10.5.0.12
+    environment:
+      ZOOKEEPER_ID: 2
+    volumes:
+      - "./srv-secondarynamenode.cfg:/etc/supervisord.d/services.cfg:ro"
+      - "./init.d:/etc/hadoop/init.d:ro"
+      - "./etc:/etc/hadoop/conf:ro"
+      - "./environment.env:/etc/environment:ro"
+      - "namenode2:/storage"
+
+  # #######################################
+  # datanodes: 1..3
+  #
+  datanode1:
+    build: .
+    hostname: datanode1
+    domainname: cluster.local
+    container_name: datanode1
+    networks:
+      hadoop:
+        ipv4_address: 10.5.0.21
+    environment:
+      ZOOKEEPER_ID: 3
+    volumes:
+      - "./srv-datanode.cfg:/etc/supervisord.d/services.cfg:ro"
+      - "./init.d:/etc/hadoop/init.d:ro"
+      - "./etc:/etc/hadoop/conf:ro"
+      - "./environment.env:/etc/environment:ro"
+      - "datanode1:/storage"
+
+  datanode2:
+    build: .
+    hostname: datanode2
+    domainname: cluster.local
+    container_name: datanode2
+    networks:
+      hadoop:
+        ipv4_address: 10.5.0.22
+    environment:
+      ZOOKEEPER_ID: 4
+    volumes:
+      - "./srv-datanode.cfg:/etc/supervisord.d/services.cfg:ro"
+      - "./init.d:/etc/hadoop/init.d:ro"
+      - "./etc:/etc/hadoop/conf:ro"
+      - "./environment.env:/etc/environment:ro"
+      - "datanode2:/storage"
+
+  datanode3:
+    build: .
+    hostname: datanode3
+    domainname: cluster.local
+    container_name: datanode3
+    networks:
+      hadoop:
+        ipv4_address: 10.5.0.23
+    environment:
+      ZOOKEEPER_ID: 5
+    volumes:
+      - "./srv-datanode.cfg:/etc/supervisord.d/services.cfg:ro"
+      - "./init.d:/etc/hadoop/init.d:ro"
+      - "./etc:/etc/hadoop/conf:ro"
+      - "./environment.env:/etc/environment:ro"
+      - "datanode3:/storage"
+
+volumes:
+  namenode1:
+  namenode2:
+  datanode1:
+  datanode2:
+  datanode3:
+
+networks:
+  hadoop:
+    name: cluster.local
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.5.0.0/16
